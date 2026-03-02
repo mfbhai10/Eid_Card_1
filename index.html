@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eid Card | Eid Mubarak E-Card Generator</title>
+    <meta
+      name="description"
+      content="Generate and download a beautiful personalised Eid Mubarak e-card with an Islamic reminder. Share with family and friends."
+    />
+    <meta property="og:title" content="Eid Card Generator" />
+    <meta
+      property="og:description"
+      content="Create your personalised Eid Mubarak e-card with an Islamic reminder and share it with your loved ones."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#001d1e" />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!--  Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Winky+Sans&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      #ecard {
+        background: linear-gradient(
+          0deg,
+          rgba(0, 29, 30, 0.7) 0%,
+          rgba(49, 49, 42, 0.7) 100%
+        );
+        background-size: cover;
+        background-position: center;
+        background-blend-mode: overlay;
+        transition: background 0.5s ease-in-out;
+        /* Smooth transition effect */
+      }
+
+      /*========================================== 
+            starting animation
+        ==========================================*/
+
+      .right-slide-animation {
+        opacity: 0;
+        animation: slideRight 1s ease forwards;
+        animation-delay: 0.3s;
+      }
+
+      .left-slide-animation {
+        opacity: 0;
+        animation: slideLeft 1s ease forwards;
+        animation-delay: 0.3s;
+      }
+
+      .top-slide-animation {
+        opacity: 0;
+        animation: slideTop 1s ease forwards;
+        animation-delay: 0.3s;
+      }
+
+      .bottom-slide-animation {
+        opacity: 0;
+        animation: slideBottom 1s ease forwards;
+        animation-delay: 0.3s;
+      }
+
+      @keyframes slideRight {
+        0% {
+          transform: translateX(-100px);
+          opacity: 0;
+        }
+
+        100% {
+          transform: translateX(0px);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideLeft {
+        0% {
+          transform: translateX(100px);
+          opacity: 0;
+        }
+
+        100% {
+          transform: translateX(0px);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideTop {
+        0% {
+          transform: translateY(-100px);
+          opacity: 0;
+        }
+
+        100% {
+          transform: translateY(0px);
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideBottom {
+        0% {
+          transform: translateY(100px);
+          opacity: 0;
+        }
+
+        100% {
+          transform: translateY(0px);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+
+  <body
+    class="flex items-start sm:items-center justify-center min-h-screen backdrop-blur-sm overflow-y-auto"
+    style="
+      background:
+        url(&quot;./images/bg-01.jpg&quot;),
+        linear-gradient(
+          0deg,
+          rgba(83, 84, 84, 0.97) 0%,
+          rgba(106, 106, 105, 0.975) 100%
+        );
+      background-blend-mode: overlay;
+      background-size: cover;
+      background-position: center;
+    "
+  >
+    <div class="p-4 shadow-lg text-center w-full max-w-sm sm:max-w-md mx-auto my-6">
+      <h2
+        class="text-2xl sm:text-3xl font-bold text-white pb-3 top-slide-animation"
+        style="font-family: &quot;Winky Sans&quot;, sans-serif"
+      >
+        Get Your Eid E-Card
+      </h2>
+      <div
+        id="ecard"
+        class="relative w-full aspect-square p-4 flex flex-col items-center justify-center shadow-md overflow-hidden"
+      >
+        <div class="absolute top-3 right-0 text-white opacity-75">
+          <img src="./images/template.png" alt="" />
+        </div>
+
+        <h1
+          class="text-2xl sm:text-3xl font-bold text-amber-400 drop-shadow-lg"
+          style="font-family: &quot;Dancing Script&quot;, cursive"
+        >
+          EID MUBARAK !
+        </h1>
+        <p
+          id="nameText"
+          class="text-sm text-white mt-2 mb-5 drop-shadow-lg"
+          style="font-family: &quot;Winky Sans&quot;, sans-serif"
+        >
+          [Write your note]
+        </p>
+        <p
+          id="hadithText"
+          class="text-sm text-amber-100 font-bold mt-5 italic text-center drop-shadow-lg"
+          style="font-family: &quot;Winky Sans&quot;, sans-serif"
+        ></p>
+        <p class="absolute text-gray-600/50 bottom-2 right-1 text-sm">
+          القدس الحرة
+        </p>
+        <p class="absolute text-gray-700/50 bottom-2 left-1 text-sm">
+          eidcard.pages.dev
+        </p>
+      </div>
+      <label for="nameInput" class="sr-only"
+        >Write your personalised note</label
+      >
+      <input
+        type="text"
+        id="nameInput"
+        placeholder="Write your note .."
+        class="p-2 rounded bg-gray-900/50 text-white w-full mt-4 focus:outline-none"
+      />
+
+      <!-- Buttons row -->
+      <div class="flex flex-wrap justify-center gap-2 mt-3">
+        <!-- "Generate" Button -->
+        <button
+          id="btnGenerate"
+          onclick="updateCard()"
+          class="bg-green-700 text-white px-4 py-2 rounded right-slide-animation hover:bg-green-600 active:bg-green-500 transition-colors"
+        >
+          Generate
+        </button>
+
+        <!-- "Reset" Button -->
+        <button
+          id="btnReset"
+          onclick="resetCard()"
+          class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 active:bg-gray-400 transition-colors"
+        >
+          Reset
+        </button>
+
+        <!-- "Download JPG" Button -->
+        <button
+          id="btnDownloadJPG"
+          onclick="downloadJPG()"
+          class="bg-amber-500 text-white px-4 py-2 rounded left-slide-animation hover:bg-amber-400 active:bg-amber-300 transition-colors"
+        >
+          Download JPG
+        </button>
+
+        <!-- "Download PDF" Button -->
+        <button
+          id="btnDownloadPDF"
+          onclick="downloadPDF()"
+          class="bg-red-700 text-white px-4 py-2 rounded hover:bg-red-600 active:bg-red-500 transition-colors"
+        >
+          Download PDF
+        </button>
+
+        <!-- "Share" Button (uses Web Share API with JPG fallback copy) -->
+        <button
+          id="btnShare"
+          onclick="shareCard()"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 active:bg-blue-400 transition-colors"
+        >
+          Share
+        </button>
+      </div>
+
+      <p id="downloadStatus" class="text-gray-400 text-sm pt-2">
+        Click Generate, then Download or Share.
+      </p>
+      <p class="text-gray-300 text-sm pt-1">
+        Click Generate again to change image &amp; reminder.
+      </p>
+    </div>
+
+    <a
+      href="https://github.com/MahmudulHasn"
+      target="_blank"
+      class="fixed bottom-4 right-4 bg-gray-800/50 text-gray-400 px-3 py-2 rounded-full shadow-lg font-bold text-sm hover:text-gray-300"
+    >
+      Gift from
+    </a>
+
+    <script>
+      const hadiths = [
+        "The Prophet (ﷺ) said, 'Whoever fasts the month of Ramadan out of faith and in the hope of reward, his past sins will be forgiven.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Eid al-Fitr is a day of reward, a day of joy, and a day when Allah forgives the sins of those who fasted and prayed during Ramadan.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, every Muslim is obligated to pay Zakat al-Fitr to purify his fast and to help those in need.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, Allah looks at His servants, and those who were fasting are forgiven.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Whoever helps a person in need on the day of Eid will be granted Allah’s mercy.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'The best day for fasting after Ramadan is the day of Arafah (Eid al-Adha).' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'There is no better charity than that given on the day of Eid.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Give charity generously on the day of Eid to help those in need.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'On Eid, Allah commands His angels to go to the marketplaces and call out: 'O you who have fasted, come forward and receive your reward from your Lord.'' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Give a portion of your wealth to those who are in need, especially on the day of Eid.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Eid is a day of joy, a day when people give charity and increase good deeds.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Perform the Eid prayer and pay the Zakat al-Fitr in the morning to purify yourself and your wealth.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'It is a Sunnah to perform the Eid prayer in congregation.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Give gifts to one another on Eid, for it increases love between you.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, it is a time to spread happiness by helping others, especially those less fortunate.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Whoever offers the Eid prayer, his sins will be forgiven, and he will be raised in rank with Allah.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Eid is a time to rejoice, but the best rejoicing is to help those in need.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'Give charity during Eid, for it is a way to purify your wealth and earn Allah’s reward.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Help others, especially on the day of Eid, for there is no greater reward than giving on this day.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'Eid is a time of thanking Allah and offering charity to purify your fast.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Make your Eid celebrations a time for helping others, and Allah will reward you in this life and the Hereafter.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'The day of Eid is a time for reflection, for thanking Allah, and for giving charity to others.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, ensure that no one is left hungry, and strive to feed those in need.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Give Zakat al-Fitr before the Eid prayer so that the poor may rejoice on the day of Eid.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Eid is a time for reflection and giving; help others and seek Allah’s forgiveness.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Help the poor and needy during Eid, for this is an act that brings reward from Allah.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'On Eid, reward is given to those who do good deeds and help others.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Eid is not just about feasting; it is about helping others and doing good deeds.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'Make your Eid meaningful by helping those around you and giving back to society.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'On Eid, Allah blesses those who reach out to others with kindness and generosity.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, gather in peace and joy, remembering Allah and helping one another.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'On Eid, give charity so that none of the poor are left behind.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'The charity given on Eid purifies the fast and brings joy to the hearts of those in need.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'Eid is a day of thanking Allah, sharing food, and giving to those who are less fortunate.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, Allah blesses those who help others in their time of need.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'Take the opportunity of Eid to forgive, to seek peace, and to help those in need.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'On Eid, help the poor and give gifts to one another to increase love.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'The best of you are those who give the most during the month of Ramadan and on Eid.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'On Eid, help others, for Allah will help you in your time of need.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'Let the celebration of Eid be a time to renew your faith and show kindness to others.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Eid is a time for charity and love; help others and seek Allah’s mercy.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, the angels pray for forgiveness for those who give charity.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'On Eid, make your celebrations a time for spreading joy and giving generously.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'The greatest joy on Eid comes from doing good deeds and helping those in need.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, share happiness with others and do good deeds.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'On Eid, reward is given to those who do good deeds and help others.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Eid is a time to thank Allah, forgive others, and increase your acts of kindness.' (Sunan Abu Dawood)",
+        "The Prophet (ﷺ) said, 'On the day of Eid, feed the poor and give generously, for Allah rewards those who help others.' (Sunan Ibn Majah)",
+        "The Prophet (ﷺ) said, 'On Eid, be kind and help others, and your reward will be multiplied by Allah.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Eid is a time for helping others, forgiving, and spreading joy.' (Sahih Muslim)",
+        "The Prophet (ﷺ) said, 'Give to the poor during Eid, so that they may feel joy and not be in need.' (Sahih Bukhari)",
+        "The Prophet (ﷺ) said, 'Eid is a time of community and unity. Help each other and strengthen your bonds.' (Sahih Bukhari)",
+      ];
+
+      // Shared download resolution — 4× is high quality without crashing low-memory devices
+      const SCALE_FACTOR = 4;
+
+      const images = [
+        "./images/card-img-01.jpg",
+        "./images/card-img-02.jpg",
+        "./images/card-img-03.jpg",
+        "./images/card-img-04.jpg",
+        "./images/card-img-05.jpg",
+        "./images/card-img-06.jpg",
+        "./images/card-img-07.jpg",
+        "./images/card-img-08.jpg",
+        "./images/card-img-09.jpg",
+        "./images/card-img-10.jpg",
+        "./images/card-img-11.jpg",
+        "./images/card-img-12.jpg",
+        "./images/card-img-13.jpg",
+        "./images/card-img-14.jpg",
+        "./images/card-img-15.jpg",
+        "./images/card-img-16.jpg",
+        "./images/card-img-17.jpg",
+        "./images/card-img-18.jpg",
+        "./images/card-img-19.jpg",
+        "./images/card-img-20.jpg",
+        "./images/card-img-21.jpg",
+        "./images/card-img-22.jpg",
+        "./images/card-img-23.jpg",
+        "./images/card-img-24.jpg",
+        "./images/card-img-25.jpg",
+        "./images/card-img-26.jpg",
+        "./images/card-img-27.jpg",
+        "./images/card-img-28.jpg",
+        "./images/card-img-29.jpg",
+      ];
+
+      // Preload all card images after the page loads so Generate doesn't flicker
+      function preloadImages() {
+        images.forEach((src) => {
+          const img = new Image();
+          img.src = src;
+        });
+      }
+
+      function setDownloadBusy(busy) {
+        const status = document.getElementById("downloadStatus");
+        const btnJPG = document.getElementById("btnDownloadJPG");
+        const btnPDF = document.getElementById("btnDownloadPDF");
+        if (busy) {
+          status.textContent = "⏳ Preparing your card, please wait…";
+          btnJPG.disabled = true;
+          btnPDF.disabled = true;
+          btnJPG.classList.add("opacity-50", "cursor-not-allowed");
+          btnPDF.classList.add("opacity-50", "cursor-not-allowed");
+        } else {
+          status.textContent = "✅ Done! Check your downloads folder.";
+          btnJPG.disabled = false;
+          btnPDF.disabled = false;
+          btnJPG.classList.remove("opacity-50", "cursor-not-allowed");
+          btnPDF.classList.remove("opacity-50", "cursor-not-allowed");
+        }
+      }
+
+      function resetCard() {
+        document.getElementById("nameInput").value = "";
+        document.getElementById("nameText").textContent = "[Write your note]";
+        const hadithText = document.getElementById("hadithText");
+        hadithText.textContent =
+          hadiths[Math.floor(Math.random() * hadiths.length)];
+        const ecard = document.getElementById("ecard");
+        ecard.style.backgroundImage = "";
+        document.getElementById("downloadStatus").textContent =
+          "Click Generate, then Download or Share.";
+      }
+
+      function updateCard() {
+        // Get user name input
+        const nameInput = document.getElementById("nameInput").value;
+        const nameText = document.getElementById("nameText");
+        nameText.textContent = nameInput
+          ? "Peace be upon you, " + nameInput
+          : "Peace be upon you";
+
+        // Set a random hadith
+        const hadithText = document.getElementById("hadithText");
+        const randomHadith =
+          hadiths[Math.floor(Math.random() * hadiths.length)];
+        hadithText.textContent = randomHadith;
+        hadithText.classList.remove("hidden"); // Make hadith visible
+
+        // Set a random background image
+        const ecard = document.getElementById("ecard");
+        const randomImage = images[Math.floor(Math.random() * images.length)];
+
+        ecard.style.backgroundImage = `linear-gradient(0deg, rgba(0,35,36,0.8) 0%, rgba(72, 72, 62, 0.7) 100%), url('${randomImage}'), linear-gradient(0deg, rgba(0,35,36,0.5) 0%, rgba(72, 72, 62, 0.5) 100%)`;
+        ecard.style.backgroundBlendMode = "overlay";
+        ecard.style.backgroundSize = "cover";
+        ecard.style.backgroundPosition = "center";
+      }
+
+      // function for downloading pdf
+      async function downloadPDF() {
+        setDownloadBusy(true);
+        try {
+          const { jsPDF } = window.jspdf;
+          const card = document.getElementById("ecard");
+
+          const canvas = await html2canvas(card, {
+            scale: SCALE_FACTOR,
+            useCORS: true,
+          });
+
+          const imgData = canvas.toDataURL("image/png", 1.0);
+
+          const cardWidth = canvas.width / SCALE_FACTOR;
+          const cardHeight = canvas.height / SCALE_FACTOR;
+
+          const pdf = new jsPDF({
+            orientation: "portrait",
+            unit: "mm",
+            format: [cardWidth, cardHeight],
+            compress: true,
+          });
+
+          pdf.addImage(imgData, "PNG", 0, 0, cardWidth, cardHeight, "", "FAST");
+          pdf.save("Eid_Card_MH.pdf");
+          setDownloadBusy(false);
+        } catch (err) {
+          console.error("PDF download failed:", err);
+          document.getElementById("downloadStatus").textContent =
+            "❌ Download failed. Try again.";
+          document.getElementById("btnDownloadJPG").disabled = false;
+          document.getElementById("btnDownloadPDF").disabled = false;
+          document
+            .getElementById("btnDownloadJPG")
+            .classList.remove("opacity-50", "cursor-not-allowed");
+          document
+            .getElementById("btnDownloadPDF")
+            .classList.remove("opacity-50", "cursor-not-allowed");
+        }
+      }
+
+      // function for downloading jpg format
+      async function downloadJPG() {
+        setDownloadBusy(true);
+        try {
+          const card = document.getElementById("ecard");
+
+          const canvas = await html2canvas(card, {
+            scale: SCALE_FACTOR,
+            useCORS: true,
+          });
+
+          const imgData = canvas.toDataURL("image/jpeg", 1.0);
+
+          // Use canvas.toBlob for efficiency instead of manual base64 decode
+          canvas.toBlob(
+            (blob) => {
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(blob);
+              link.download = "Eid_Card_MH.jpg";
+              link.click();
+              setDownloadBusy(false);
+            },
+            "image/jpeg",
+            1.0,
+          );
+        } catch (err) {
+          console.error("JPG download failed:", err);
+          document.getElementById("downloadStatus").textContent =
+            "❌ Download failed. Try again.";
+          document.getElementById("btnDownloadJPG").disabled = false;
+          document.getElementById("btnDownloadPDF").disabled = false;
+          document
+            .getElementById("btnDownloadJPG")
+            .classList.remove("opacity-50", "cursor-not-allowed");
+          document
+            .getElementById("btnDownloadPDF")
+            .classList.remove("opacity-50", "cursor-not-allowed");
+        }
+      }
+
+      // Share card using Web Share API; falls back to copying a message to clipboard
+      async function shareCard() {
+        const card = document.getElementById("ecard");
+        const status = document.getElementById("downloadStatus");
+        try {
+          const canvas = await html2canvas(card, {
+            scale: SCALE_FACTOR,
+            useCORS: true,
+          });
+          canvas.toBlob(
+            async (blob) => {
+              const file = new File([blob], "Eid_Card_MH.jpg", {
+                type: "image/jpeg",
+              });
+              if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                  title: "Eid Mubarak!",
+                  text: "Wishing you a blessed Eid! 🌙",
+                  files: [file],
+                });
+                status.textContent = "✅ Shared successfully!";
+              } else if (navigator.share) {
+                await navigator.share({
+                  title: "Eid Mubarak!",
+                  text: "Wishing you a blessed Eid! 🌙",
+                });
+                status.textContent = "✅ Shared successfully!";
+              } else {
+                await navigator.clipboard.writeText(
+                  "Wishing you a blessed Eid Mubarak! 🌙 Check out eidcard.pages.dev",
+                );
+                status.textContent = "📋 Share link copied to clipboard!";
+              }
+            },
+            "image/jpeg",
+            1.0,
+          );
+        } catch (err) {
+          if (err.name !== "AbortError") {
+            console.error("Share failed:", err);
+            status.textContent = "❌ Share failed. Try downloading instead.";
+          }
+        }
+      }
+
+      // Load a random hadith and preload images when the page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        const hadithText = document.getElementById("hadithText");
+        hadithText.textContent =
+          hadiths[Math.floor(Math.random() * hadiths.length)];
+        preloadImages();
+      });
+    </script>
+  </body>
+</html>
