@@ -41,7 +41,139 @@
         background-position: center;
         background-blend-mode: overlay;
         transition: background 0.5s ease-in-out;
-        /* Smooth transition effect */
+        border: 1.5px solid rgba(251, 191, 36, 0.38);
+        box-shadow:
+          0 0 0 5px rgba(0, 0, 0, 0.35),
+          inset 0 0 70px rgba(0, 0, 0, 0.28),
+          0 8px 40px rgba(0, 0, 0, 0.6);
+      }
+
+      /* ── Corner bracket ornaments ── */
+      .card-corner {
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        border-style: solid;
+        border-color: rgba(251, 191, 36, 0.55);
+      }
+      .card-corner-tl {
+        top: 10px;
+        left: 10px;
+        border-width: 2px 0 0 2px;
+      }
+      .card-corner-tr {
+        top: 10px;
+        right: 10px;
+        border-width: 2px 2px 0 0;
+      }
+      .card-corner-bl {
+        bottom: 26px;
+        left: 10px;
+        border-width: 0 0 2px 2px;
+      }
+      .card-corner-br {
+        bottom: 26px;
+        right: 10px;
+        border-width: 0 2px 2px 0;
+      }
+
+      /* ── Ornamental horizontal rule ── */
+      .ornamental-divider {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        width: 75%;
+        margin: 6px auto;
+        color: rgba(251, 191, 36, 0.65);
+        font-size: 11px;
+        letter-spacing: 2px;
+      }
+      .ornamental-divider::before {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+          to right,
+          transparent,
+          rgba(251, 191, 36, 0.5)
+        );
+      }
+      .ornamental-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(
+          to left,
+          transparent,
+          rgba(251, 191, 36, 0.5)
+        );
+      }
+
+      /* ── Hadith quote block ── */
+      .hadith-block {
+        position: relative;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(251, 191, 36, 0.18);
+        border-left: 3px solid rgba(251, 191, 36, 0.55);
+        border-radius: 4px;
+        padding: 9px 13px 9px 15px;
+        width: calc(100% - 32px);
+        /* backdrop-filter removed: html2canvas does not support it */
+      }
+      .hadith-block::before {
+        content: "\201C";
+        position: absolute;
+        top: -6px;
+        left: 8px;
+        font-size: 32px;
+        line-height: 1;
+        color: rgba(251, 191, 36, 0.35);
+        font-family: Georgia, serif;
+      }
+
+      /* ── Title shimmer ── */
+      @keyframes shimmer {
+        0% {
+          background-position: -200% center;
+        }
+        100% {
+          background-position: 200% center;
+        }
+      }
+      .title-shimmer {
+        background: linear-gradient(
+          90deg,
+          #f59e0b 0%,
+          #fde68a 40%,
+          #f59e0b 60%,
+          #fbbf24 100%
+        );
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 4s linear infinite;
+      }
+
+      /* ── Crescent badge ── */
+      .crescent-badge {
+        display: block;
+        text-align: center;
+        white-space: nowrap;
+        background: rgba(251, 191, 36, 0.1);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        border-radius: 999px;
+        padding: 3px 14px;
+        margin-bottom: 4px;
+        font-size: 13px;
+        line-height: 1;
+        color: rgba(251, 191, 36, 0.8);
+      }
+      .crescent-badge span {
+        display: inline;
+        vertical-align: middle;
+        line-height: 1;
+        margin: 0 3px;
       }
 
       /*========================================== 
@@ -147,12 +279,20 @@
     </button>
 
     <div
-      class="p-4 shadow-lg text-center w-full max-w-sm sm:max-w-md mx-auto my-6"
+      class="p-4 shadow-2xl text-center w-full max-w-sm sm:max-w-md mx-auto my-6 rounded-xl"
+      style="
+        background: rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+      "
     >
       <h2
         id="pageHeading"
-        class="text-xl sm:text-3xl font-bold text-white pb-3 top-slide-animation"
-        style="font-family: &quot;Winky Sans&quot;, sans-serif"
+        class="text-xl sm:text-3xl font-bold text-amber-300 pb-3 top-slide-animation tracking-wide"
+        style="
+          font-family: &quot;Winky Sans&quot;, sans-serif;
+          text-shadow: 0 0 20px rgba(251, 191, 36, 0.4);
+        "
       >
         Get Your Eid E-Card
       </h2>
@@ -160,34 +300,55 @@
         id="ecard"
         class="relative w-full aspect-square p-4 flex flex-col items-center justify-center shadow-md overflow-hidden"
       >
-        <div class="absolute top-3 right-0 text-white opacity-75">
+        <!-- Corner ornaments -->
+        <div class="card-corner card-corner-tl"></div>
+        <div class="card-corner card-corner-tr"></div>
+        <div class="card-corner card-corner-bl"></div>
+        <div class="card-corner card-corner-br"></div>
+
+        <!-- Template overlay (top-right) -->
+        <div class="absolute top-3 right-0 text-white opacity-60">
           <img src="./images/template.png" alt="" />
         </div>
 
         <h1
           id="cardTitle"
-          class="text-2xl sm:text-3xl font-bold text-amber-400 drop-shadow-lg"
+          class="title-shimmer text-3xl sm:text-4xl font-bold drop-shadow-lg tracking-widest"
           style="font-family: &quot;Dancing Script&quot;, cursive"
         >
           EID MUBARAK !
         </h1>
+
+        <!-- Ornamental divider -->
+        <div class="ornamental-divider">✦</div>
+
         <p
           id="nameText"
-          class="text-sm text-white mt-2 mb-5 drop-shadow-lg"
+          class="text-sm text-amber-50/90 drop-shadow-lg px-4 text-center"
           style="font-family: &quot;Winky Sans&quot;, sans-serif"
         >
           [Write your note]
         </p>
+
+        <!-- Ornamental divider (bottom) -->
+        <div class="ornamental-divider" style="margin-top: 8px">✦</div>
+
+        <!-- Hadith styled block -->
+        <div class="hadith-block">
+          <p
+            id="hadithText"
+            class="text-xs text-amber-100/90 italic text-center drop-shadow-lg leading-relaxed"
+            style="font-family: &quot;Winky Sans&quot;, sans-serif"
+          ></p>
+        </div>
+
         <p
-          id="hadithText"
-          class="text-sm text-amber-100 font-bold mt-5 italic text-center drop-shadow-lg"
-          style="font-family: &quot;Winky Sans&quot;, sans-serif"
-        ></p>
-        <p class="absolute text-gray-600/50 bottom-2 right-1 text-sm">
+          class="absolute text-gray-500/45 bottom-2 right-2 text-xs tracking-wide"
+        >
           القدس الحرة
         </p>
-        <p class="absolute text-gray-700/50 bottom-2 left-1 text-sm">
-          https://eidcard-indol.vercel.app/
+        <p class="absolute text-gray-600/40 bottom-2 left-2 text-xs">
+          https://eidcard-mfr.vercel.app/
         </p>
       </div>
       <label for="nameInput" class="sr-only"
@@ -197,7 +358,7 @@
         type="text"
         id="nameInput"
         placeholder="Write your note .."
-        class="p-2 rounded bg-gray-900/50 text-white w-full mt-4 focus:outline-none"
+        class="p-2.5 rounded-lg bg-gray-900/60 text-white w-full mt-4 focus:outline-none focus:ring-1 focus:ring-amber-500/50 border border-white/10 placeholder-gray-500 text-sm transition-all"
         oninput="livePreviewName(this.value)"
       />
 
@@ -214,45 +375,65 @@
       <button
         id="btnImportImage"
         onclick="document.getElementById('bgImageInput').click()"
-        class="bg-yellow-700 text-white w-full py-2 rounded mt-2 hover:bg-yellow-700 active:bg-yellow-600 transition-colors"
+        class="text-amber-200 w-full py-2 rounded-lg mt-2 text-sm font-medium transition-all hover:brightness-110 active:scale-95"
+        style="
+          background: linear-gradient(
+            135deg,
+            rgba(120, 80, 10, 0.7),
+            rgba(92, 55, 5, 0.7)
+          );
+          border: 1px solid rgba(251, 191, 36, 0.25);
+        "
       >
-        Custom Background
+        🖼 Custom Background
       </button>
 
       <!-- Buttons row -->
-      <div class="flex justify-center gap-2 mt-3">
+      <div class="flex justify-center gap-2 mt-2">
         <!-- "Generate" Button -->
         <button
           id="btnGenerate"
           onclick="updateCard()"
-          class="flex-1 bg-green-800 text-white px-4 py-2 rounded right-slide-animation hover:bg-green-600 active:bg-green-500 transition-colors"
+          class="flex-1 text-white px-4 py-2.5 rounded-lg text-sm font-semibold right-slide-animation transition-all hover:brightness-110 active:scale-95"
+          style="
+            background: linear-gradient(135deg, #14532d, #166534);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+          "
         >
-          Generate
+          ✨ Generate
         </button>
 
         <!-- "Download JPG" Button -->
         <button
           id="btnDownloadJPG"
           onclick="downloadJPG()"
-          class="flex-1 bg-amber-700 text-white px-4 py-2 rounded left-slide-animation hover:bg-amber-400 active:bg-amber-300 transition-colors"
+          class="flex-1 text-white px-4 py-2.5 rounded-lg text-sm font-semibold left-slide-animation transition-all hover:brightness-110 active:scale-95"
+          style="
+            background: linear-gradient(135deg, #92400e, #b45309);
+            border: 1px solid rgba(251, 191, 36, 0.25);
+          "
         >
-          Download
+          ⬇ Download
         </button>
 
-        <!-- "Share" Button (uses Web Share API with JPG fallback copy) -->
+        <!-- "Share" Button -->
         <button
           id="btnShare"
           onclick="shareCard()"
-          class="flex-1 bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-500 active:bg-blue-400 transition-colors"
+          class="flex-1 text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:brightness-110 active:scale-95"
+          style="
+            background: linear-gradient(135deg, #1e3a5f, #1d4ed8);
+            border: 1px solid rgba(96, 165, 250, 0.2);
+          "
         >
-          Share
+          ↗ Share
         </button>
       </div>
 
-      <p id="downloadStatus" class="text-gray-400 text-sm pt-2">
+      <p id="downloadStatus" class="text-gray-400 text-xs pt-2">
         Click Generate, then Download or Share.
       </p>
-      <p id="statusHint" class="text-gray-300 text-sm pt-1">
+      <p id="statusHint" class="text-gray-500 text-xs pt-0.5">
         Click Generate again to change image &amp; reminder.
       </p>
     </div>
@@ -260,9 +441,14 @@
     <a
       href="https://github.com/mfbhai10"
       target="_blank"
-      class="fixed bottom-4 right-4 bg-gray-800/50 text-gray-400 px-3 py-2 rounded-full shadow-lg font-bold text-sm hover:text-gray-300"
+      class="fixed bottom-4 right-4 text-gray-400 px-3 py-2 rounded-full shadow-lg text-xs hover:text-amber-300 transition-colors"
+      style="
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(4px);
+      "
     >
-      Gift from
+      🎁 Gift from
     </a>
 
     <script>
@@ -466,6 +652,58 @@
       // Shared download resolution — 4× is high quality without crashing low-memory devices
       const SCALE_FACTOR = 4;
 
+      /**
+       * html2canvas cannot render -webkit-background-clip:text (shimmer) or
+       * backdrop-filter. Before capturing we swap those to solid equivalents,
+       * then restore them afterwards so the live preview is unaffected.
+       */
+      function prepareForCapture() {
+        const title = document.getElementById("cardTitle");
+        // Store original shimmer styles
+        title.dataset.origBackground = title.style.background || "";
+        title.dataset.origWebkitTextFill =
+          title.style.webkitTextFillColor || "";
+        title.dataset.origBackgroundClip = title.style.backgroundClip || "";
+        title.dataset.origAnimation = title.style.animation || "";
+        // Apply solid gold fallback
+        title.style.background = "none";
+        title.style.webkitTextFillColor = "#fbbf24";
+        title.style.backgroundClip = "unset";
+        title.style.animation = "none";
+        title.style.color = "#fbbf24";
+        title.classList.remove("title-shimmer");
+
+        // html2canvas does not support CSS aspect-ratio — fix by:
+        //  1. Removing the Tailwind aspect-square class entirely
+        //  2. Locking the card to explicit px dimensions
+        const card = document.getElementById("ecard");
+        const rect = card.getBoundingClientRect();
+        card.dataset.origWidth = card.style.width || "";
+        card.dataset.origHeight = card.style.height || "";
+        card.dataset.hadAspectSquare = card.classList.contains("aspect-square")
+          ? "1"
+          : "0";
+        card.classList.remove("aspect-square"); // remove so html2canvas sees no aspect-ratio
+        card.style.width = rect.width + "px";
+        card.style.height = rect.width + "px"; // enforce square
+      }
+
+      function restoreAfterCapture() {
+        const title = document.getElementById("cardTitle");
+        title.style.background = title.dataset.origBackground;
+        title.style.webkitTextFillColor = title.dataset.origWebkitTextFill;
+        title.style.backgroundClip = title.dataset.origBackgroundClip;
+        title.style.animation = title.dataset.origAnimation;
+        title.style.color = "";
+        title.classList.add("title-shimmer");
+
+        const card = document.getElementById("ecard");
+        if (card.dataset.hadAspectSquare === "1")
+          card.classList.add("aspect-square");
+        card.style.width = card.dataset.origWidth;
+        card.style.height = card.dataset.origHeight;
+      }
+
       const images = [
         "./images/card-img-01.jpg",
         "./images/card-img-02.jpg",
@@ -567,15 +805,23 @@
       // function for downloading jpg format
       async function downloadJPG() {
         setDownloadBusy(true);
+        prepareForCapture();
         try {
           const card = document.getElementById("ecard");
 
+          // Wait for all fonts to finish loading so text layout is stable
+          await document.fonts.ready;
+
+          const cardW = card.offsetWidth;
           const canvas = await html2canvas(card, {
             scale: SCALE_FACTOR,
             useCORS: true,
+            width: cardW,
+            height: cardW,
+            windowWidth: window.innerWidth,
           });
 
-          const imgData = canvas.toDataURL("image/jpeg", 1.0);
+          restoreAfterCapture();
 
           // Use canvas.toBlob for efficiency instead of manual base64 decode
           canvas.toBlob(
@@ -590,6 +836,7 @@
             1.0,
           );
         } catch (err) {
+          restoreAfterCapture();
           console.error("JPG download failed:", err);
           document.getElementById("downloadStatus").textContent =
             "❌ Download failed. Try again.";
@@ -604,11 +851,19 @@
       async function shareCard() {
         const card = document.getElementById("ecard");
         const status = document.getElementById("downloadStatus");
+        prepareForCapture();
         try {
+          // Wait for all fonts to finish loading so text layout is stable
+          await document.fonts.ready;
+          const cardW = card.offsetWidth;
           const canvas = await html2canvas(card, {
             scale: SCALE_FACTOR,
             useCORS: true,
+            width: cardW,
+            height: cardW,
+            windowWidth: window.innerWidth,
           });
+          restoreAfterCapture();
           canvas.toBlob(
             async (blob) => {
               const file = new File([blob], "Eid_Card_MH.jpg", {
@@ -629,7 +884,7 @@
                 status.textContent = "✅ Shared successfully!";
               } else {
                 await navigator.clipboard.writeText(
-                  "Wishing you a blessed Eid Mubarak! 🌙 Check out https://eidcard-indol.vercel.app/",
+                  "Wishing you a blessed Eid Mubarak! 🌙 Check out https://eidcard-mfr.vercel.app/",
                 );
                 status.textContent = "📋 Share link copied to clipboard!";
               }
@@ -638,6 +893,7 @@
             1.0,
           );
         } catch (err) {
+          restoreAfterCapture();
           if (err.name !== "AbortError") {
             console.error("Share failed:", err);
             status.textContent = "❌ Share failed. Try downloading instead.";
