@@ -137,10 +137,20 @@
       background-position: center;
     "
   >
+    <!-- Language Toggle Button -->
+    <button
+      id="btnLangToggle"
+      onclick="toggleLang()"
+      class="fixed top-4 right-4 z-50 bg-gray-800/70 text-white text-sm px-3 py-1.5 rounded-full border border-gray-600 hover:bg-gray-700 transition-colors"
+    >
+      বাংলা
+    </button>
+
     <div
       class="p-4 shadow-lg text-center w-full max-w-sm sm:max-w-md mx-auto my-6"
     >
       <h2
+        id="pageHeading"
         class="text-2xl sm:text-3xl font-bold text-white pb-3 top-slide-animation"
         style="font-family: &quot;Winky Sans&quot;, sans-serif"
       >
@@ -155,6 +165,7 @@
         </div>
 
         <h1
+          id="cardTitle"
           class="text-2xl sm:text-3xl font-bold text-amber-400 drop-shadow-lg"
           style="font-family: &quot;Dancing Script&quot;, cursive"
         >
@@ -176,7 +187,7 @@
           القدس الحرة
         </p>
         <p class="absolute text-gray-700/50 bottom-2 left-1 text-sm">
-          eidcard.pages.dev
+          https://eidcard-indol.vercel.app/
         </p>
       </div>
       <label for="nameInput" class="sr-only"
@@ -187,11 +198,7 @@
         id="nameInput"
         placeholder="Write your note .."
         class="p-2 rounded bg-gray-900/50 text-white w-full mt-4 focus:outline-none"
-        oninput="
-          document.getElementById('nameText').textContent = this.value
-            ? 'Peace be upon you, ' + this.value
-            : '[Write your note]'
-        "
+        oninput="livePreviewName(this.value)"
       />
 
       <!-- Hidden file input for custom background -->
@@ -207,7 +214,7 @@
       <button
         id="btnImportImage"
         onclick="document.getElementById('bgImageInput').click()"
-        class="bg-yellow-700 text-white w-full py-2 rounded mt-2 hover:bg-purple-600 active:bg-purple-500 transition-colors"
+        class="bg-yellow-700 text-white w-full py-2 rounded mt-2 hover:bg-yellow-700 active:bg-yellow-600 transition-colors"
       >
         Custom Background
       </button>
@@ -245,7 +252,7 @@
       <p id="downloadStatus" class="text-gray-400 text-sm pt-2">
         Click Generate, then Download or Share.
       </p>
-      <p class="text-gray-300 text-sm pt-1">
+      <p id="statusHint" class="text-gray-300 text-sm pt-1">
         Click Generate again to change image &amp; reminder.
       </p>
     </div>
@@ -259,6 +266,144 @@
     </a>
 
     <script>
+      let currentLang = "en";
+
+      const hadithsBn = [
+        "নবী (ﷺ) বলেছেন, 'যে ব্যক্তি ঈমান ও সওয়াবের আশায় রমজান মাসে রোজা রাখে, তার পূর্বের গুনাহ মাফ করে দেওয়া হয়।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদুল ফিতর হলো পুরস্কারের দিন, আনন্দের দিন এবং এমন একটি দিন যেদিন আল্লাহ রোজাদার ও নামাজিদের গুনাহ মাফ করে দেন।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন প্রতিটি মুসলিমের উপর ফিতরা আদায় করা ওয়াজিব, যা রোজাকে পবিত্র করে এবং অভাবীদের সাহায্য করে।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন আল্লাহ তাঁর বান্দাদের দিকে তাকান এবং রোজাদারদের ক্ষমা করে দেন।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'যে ব্যক্তি ঈদের দিন কোনো অভাবীকে সাহায্য করে, আল্লাহ তাকে তাঁর রহমত দান করবেন।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'রমজানের পরে সর্বোত্তম রোজা হলো আরাফার দিনের রোজা।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিনে দেওয়া সদকার চেয়ে উত্তম কোনো সদকা নেই।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন অভাবীদের সাহায্যে উদারভাবে দান করো।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন আল্লাহ তাঁর ফেরেশতাদের পাঠান যারা ডেকে বলেন: হে রোজাদাররা, এগিয়ে আসো এবং তোমাদের প্রভুর কাছ থেকে পুরস্কার গ্রহণ করো।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'তোমার সম্পদের একটি অংশ অভাবীদের দাও, বিশেষত ঈদের দিনে।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ হলো আনন্দের দিন, যেদিন মানুষ দান করে এবং ভালো কাজ বাড়ায়।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'সকালে ঈদের নামাজ পড়ো এবং ফিতরা আদায় করো, যাতে নিজেকে ও সম্পদকে পবিত্র করতে পারো।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'জামাতে ঈদের নামাজ পড়া সুন্নত।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে একে অপরকে উপহার দাও, কারণ এটি তোমাদের মধ্যে ভালোবাসা বাড়ায়।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন অন্যদের, বিশেষত সুবিধাবঞ্চিতদের, সাহায্য করে আনন্দ ছড়িয়ে দেওয়ার সময়।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'যে ব্যক্তি ঈদের নামাজ পড়ে, তার গুনাহ মাফ করা হবে এবং আল্লাহর কাছে তার মর্যাদা বাড়ানো হবে।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ আনন্দ করার সময়, কিন্তু সর্বোত্তম আনন্দ হলো অভাবীদের সাহায্য করা।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে দান করো, কারণ এটি তোমার সম্পদকে পবিত্র করে এবং আল্লাহর পুরস্কার অর্জন করে।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'অন্যদের সাহায্য করো, বিশেষত ঈদের দিনে, কারণ এই দিনে দান করার চেয়ে বড় পুরস্কার আর নেই।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ হলো আল্লাহকে ধন্যবাদ দেওয়ার এবং রোজাকে পবিত্র করতে দান করার সময়।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'তোমার ঈদ উদযাপনকে অন্যদের সাহায্য করার সময় হিসেবে নাও, এবং আল্লাহ তোমাকে ইহকাল ও পরকালে পুরস্কৃত করবেন।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন আত্মপর্যালোচনা, আল্লাহকে ধন্যবাদ প্রদান এবং অন্যদের দানের সময়।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন নিশ্চিত করো যে কেউ ক্ষুধার্ত না থাকে এবং অভাবীদের খাওয়ানোর চেষ্টা করো।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের নামাজের আগে ফিতরা আদায় করো যাতে গরিবরা ঈদের দিন আনন্দ করতে পারে।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ আত্মপর্যালোচনা ও দানের সময়; অন্যদের সাহায্য করো এবং আল্লাহর কাছে ক্ষমা চাও।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে গরিব ও অভাবীদের সাহায্য করো, কারণ এটি আল্লাহর কাছ থেকে পুরস্কার নিয়ে আসে।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে ভালো কাজ করা ও অন্যদের সাহায্য করাই পুরস্কারের কারণ।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ শুধু ভোজের জন্য নয়; এটি অন্যদের সাহায্য করা ও ভালো কাজ করার দিন।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'আশেপাশের মানুষদের সাহায্য করে ও সমাজে ফিরিয়ে দিয়ে তোমার ঈদকে অর্থবহ করো।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে আল্লাহ তাদের আশীর্বাদ করেন যারা দয়া ও উদারতার সাথে অন্যদের কাছে পৌঁছায়।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন শান্তি ও আনন্দের সাথে একত্রিত হও, আল্লাহকে স্মরণ করো এবং একে অপরকে সাহায্য করো।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে দান করো যাতে কোনো গরিব পিছিয়ে না পড়ে।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে দেওয়া সদকা রোজাকে পবিত্র করে এবং অভাবীদের মনে আনন্দ এনে দেয়।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ হলো আল্লাহকে ধন্যবাদ দেওয়া, খাবার ভাগ করা এবং সুবিধাবঞ্চিতদের দানের দিন।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন আল্লাহ তাদের আশীর্বাদ করেন যারা প্রয়োজনের সময় অন্যদের সাহায্য করে।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের সুযোগ নাও ক্ষমা করতে, শান্তি খুঁজতে এবং অভাবীদের সাহায্য করতে।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে গরিবদের সাহায্য করো এবং ভালোবাসা বাড়াতে একে অপরকে উপহার দাও।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'তোমাদের মধ্যে সর্বোত্তম তারা যারা রমজান মাসে ও ঈদে সবচেয়ে বেশি দান করে।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে অন্যদের সাহায্য করো, কারণ আল্লাহ তোমার প্রয়োজনের সময় তোমাকে সাহায্য করবেন।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ উদযাপনকে নিজের ঈমান নবায়ন করার এবং অন্যদের প্রতি সদয় হওয়ার সময় হিসেবে গ্রহণ করো।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ হলো দান ও ভালোবাসার সময়; অন্যদের সাহায্য করো এবং আল্লাহর রহমত চাও।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন ফেরেশতারা দানকারীদের জন্য ক্ষমার দোয়া করেন।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে তোমার উদযাপনকে আনন্দ ছড়ানো ও উদারভাবে দান করার সময় হিসেবে নাও।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের সর্বোচ্চ আনন্দ আসে ভালো কাজ করা ও অভাবীদের সাহায্য করা থেকে।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন অন্যদের সাথে আনন্দ ভাগ করো এবং ভালো কাজ করো।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে ভালো কাজ করা ও অন্যদের সাহায্য করাই পুরস্কারের কারণ।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ হলো আল্লাহকে ধন্যবাদ দেওয়া, অন্যদের ক্ষমা করা এবং দয়ার কাজ বাড়ানোর সময়।' (সুনান আবু দাউদ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদের দিন গরিবদের খাওয়াও এবং উদারভাবে দান করো, কারণ আল্লাহ সাহায্যকারীদের পুরস্কার দেন।' (সুনান ইবনে মাজাহ)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে সদয় হও ও অন্যদের সাহায্য করো, এবং আল্লাহ তোমার পুরস্কার বহুগুণে বাড়িয়ে দেবেন।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ হলো অন্যদের সাহায্য করা, ক্ষমা করা এবং আনন্দ ছড়িয়ে দেওয়ার সময়।' (সহিহ মুসলিম)",
+        "নবী (ﷺ) বলেছেন, 'ঈদে গরিবদের দান করো যাতে তারা আনন্দ অনুভব করতে পারে এবং কষ্টে না থাকে।' (সহিহ বুখারি)",
+        "নবী (ﷺ) বলেছেন, 'ঈদ হলো সম্প্রদায় ও ঐক্যের সময়। একে অপরকে সাহায্য করো এবং বন্ধন মজবুত করো।' (সহিহ বুখারি)",
+      ];
+
+      const i18n = {
+        en: {
+          pageHeading: "Get Your Eid E-Card",
+          cardTitle: "EID MUBARAK !",
+          noteDefault: "[Write your note]",
+          notePrefix: "Peace be upon you, ",
+          notePrefixNoName: "Peace be upon you",
+          placeholder: "Write your note ..",
+          btnGenerate: "Generate",
+          btnImportImage: "Custom Background",
+          btnDownloadJPG: "Download",
+          btnShare: "Share",
+          statusDefault: "Click Generate, then Download or Share.",
+          statusHint: "Click Generate again to change image & reminder.",
+          statusCustomBg:
+            "\u2705 Custom background applied! Click Download or Share.",
+          btnLangToggle: "\u09ac\u09be\u0982\u09b2\u09be",
+        },
+        bn: {
+          pageHeading:
+            "\u0986\u09aa\u09a8\u09be\u09b0 \u0988\u09a6 \u0987-\u0995\u09be\u09b0\u09cd\u09a1 \u09a8\u09bf\u09a8",
+          cardTitle: "\u0988\u09a6 \u09ae\u09cb\u09ac\u09be\u09b0\u0995 !",
+          noteDefault:
+            "[\u0986\u09aa\u09a8\u09be\u09b0 \u09ac\u09be\u09b0\u09cd\u09a4\u09be \u09b2\u09bf\u0996\u09c1\u09a8]",
+          notePrefix:
+            "\u0986\u09b8\u09b8\u09be\u09b2\u09be\u09ae\u09c1 \u0986\u09b2\u09be\u0987\u0995\u09c1\u09ae, ",
+          notePrefixNoName:
+            "\u0986\u09b8\u09b8\u09be\u09b2\u09be\u09ae\u09c1 \u0986\u09b2\u09be\u0987\u0995\u09c1\u09ae",
+          placeholder:
+            "\u0986\u09aa\u09a8\u09be\u09b0 \u09ac\u09be\u09b0\u09cd\u09a4\u09be \u09b2\u09bf\u0996\u09c1\u09a8..",
+          btnGenerate: "\u09a4\u09c8\u09b0\u09bf \u0995\u09b0\u09c1\u09a8",
+          btnImportImage:
+            "\u0995\u09be\u09b8\u09cd\u099f\u09ae \u09ac\u09cd\u09af\u09be\u0995\u0997\u09cd\u09b0\u09be\u0989\u09a8\u09cd\u09a1",
+          btnDownloadJPG: "\u09a1\u09be\u0989\u09a8\u09b2\u09cb\u09a1",
+          btnShare: "\u09b6\u09c7\u09af\u09bc\u09be\u09b0",
+          statusDefault:
+            "\u09a4\u09c8\u09b0\u09bf \u0995\u09b0\u09c1\u09a8, \u09a4\u09be\u09b0\u09aa\u09b0 \u09a1\u09be\u0989\u09a8\u09b2\u09cb\u09a1 \u09ac\u09be \u09b6\u09c7\u09af\u09bc\u09be\u09b0 \u0995\u09b0\u09c1\u09a8\u0964",
+          statusHint:
+            "\u099b\u09ac\u09bf \u0993 \u09b0\u09bf\u09ae\u09be\u0987\u09a8\u09cd\u09a1\u09be\u09b0 \u09aa\u09b0\u09bf\u09ac\u09b0\u09cd\u09a4\u09a8 \u0995\u09b0\u09a4\u09c7 \u0986\u09ac\u09be\u09b0 \u09a4\u09c8\u09b0\u09bf \u0995\u09b0\u09c1\u09a8\u0964",
+          statusCustomBg:
+            "\u2705 \u0995\u09be\u09b8\u09cd\u099f\u09ae \u09ac\u09cd\u09af\u09be\u0995\u0997\u09cd\u09b0\u09be\u0989\u09a8\u09cd\u09a1 \u09af\u09cb\u0997 \u09b9\u09af\u09bc\u09c7\u099b\u09c7! \u09a1\u09be\u0989\u09a8\u09b2\u09cb\u09a1 \u09ac\u09be \u09b6\u09c7\u09af\u09bc\u09be\u09b0 \u0995\u09b0\u09c1\u09a8\u0964",
+          btnLangToggle: "English",
+        },
+      };
+
+      function toggleLang() {
+        currentLang = currentLang === "en" ? "bn" : "en";
+        const t = i18n[currentLang];
+        document.getElementById("pageHeading").textContent = t.pageHeading;
+        document.getElementById("cardTitle").textContent = t.cardTitle;
+        document.getElementById("btnLangToggle").textContent = t.btnLangToggle;
+        document.getElementById("btnGenerate").textContent = t.btnGenerate;
+        document.getElementById("btnImportImage").textContent =
+          t.btnImportImage;
+        document.getElementById("btnDownloadJPG").textContent =
+          t.btnDownloadJPG;
+        document.getElementById("btnShare").textContent = t.btnShare;
+        document.getElementById("statusHint").textContent = t.statusHint;
+        document.getElementById("nameInput").placeholder = t.placeholder;
+        const currentNote = document.getElementById("nameInput").value;
+        document.getElementById("nameText").textContent = currentNote
+          ? t.notePrefix + currentNote
+          : t.noteDefault;
+        const pool = currentLang === "en" ? hadiths : hadithsBn;
+        document.getElementById("hadithText").textContent =
+          pool[Math.floor(Math.random() * pool.length)];
+        const status = document.getElementById("downloadStatus");
+        const prevDefault =
+          currentLang === "en" ? i18n.bn.statusDefault : i18n.en.statusDefault;
+        if (status.textContent === prevDefault) {
+          status.textContent = t.statusDefault;
+        }
+      }
+
+      function livePreviewName(value) {
+        const t = i18n[currentLang];
+        document.getElementById("nameText").textContent = value
+          ? t.notePrefix + value
+          : t.noteDefault;
+      }
+
       const hadiths = [
         "The Prophet (ﷺ) said, 'Whoever fasts the month of Ramadan out of faith and in the hope of reward, his past sins will be forgiven.' (Sahih Bukhari)",
         "The Prophet (ﷺ) said, 'Eid al-Fitr is a day of reward, a day of joy, and a day when Allah forgives the sins of those who fasted and prayed during Ramadan.' (Sahih Muslim)",
@@ -360,19 +505,20 @@
       function setDownloadBusy(busy) {
         const status = document.getElementById("downloadStatus");
         const btnJPG = document.getElementById("btnDownloadJPG");
-        const btnPDF = document.getElementById("btnDownloadPDF");
         if (busy) {
-          status.textContent = "⏳ Preparing your card, please wait…";
+          status.textContent =
+            currentLang === "bn"
+              ? "⏳ আপনার কার্ড প্রস্তুত হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন…"
+              : "⏳ Preparing your card, please wait…";
           btnJPG.disabled = true;
-          btnPDF.disabled = true;
           btnJPG.classList.add("opacity-50", "cursor-not-allowed");
-          btnPDF.classList.add("opacity-50", "cursor-not-allowed");
         } else {
-          status.textContent = "✅ Done! Check your downloads folder.";
+          status.textContent =
+            currentLang === "bn"
+              ? "✅ সম্পন্ন! আপনার ডাউনলোড ফোল্ডার চেক করুন।"
+              : "✅ Done! Check your downloads folder.";
           btnJPG.disabled = false;
-          btnPDF.disabled = false;
           btnJPG.classList.remove("opacity-50", "cursor-not-allowed");
-          btnPDF.classList.remove("opacity-50", "cursor-not-allowed");
         }
       }
 
@@ -389,17 +535,18 @@
       }
 
       function updateCard() {
+        const t = i18n[currentLang];
         // Get user name input
         const nameInput = document.getElementById("nameInput").value;
         const nameText = document.getElementById("nameText");
         nameText.textContent = nameInput
-          ? "Peace be upon you, " + nameInput
-          : "Peace be upon you";
+          ? t.notePrefix + nameInput
+          : t.notePrefixNoName;
 
-        // Set a random hadith
+        // Set a random hadith in current language
         const hadithText = document.getElementById("hadithText");
-        const randomHadith =
-          hadiths[Math.floor(Math.random() * hadiths.length)];
+        const pool = currentLang === "en" ? hadiths : hadithsBn;
+        const randomHadith = pool[Math.floor(Math.random() * pool.length)];
         hadithText.textContent = randomHadith;
         hadithText.classList.remove("hidden"); // Make hadith visible
 
@@ -411,48 +558,6 @@
         ecard.style.backgroundBlendMode = "overlay";
         ecard.style.backgroundSize = "cover";
         ecard.style.backgroundPosition = "center";
-      }
-
-      // function for downloading pdf
-      async function downloadPDF() {
-        setDownloadBusy(true);
-        try {
-          const { jsPDF } = window.jspdf;
-          const card = document.getElementById("ecard");
-
-          const canvas = await html2canvas(card, {
-            scale: SCALE_FACTOR,
-            useCORS: true,
-          });
-
-          const imgData = canvas.toDataURL("image/png", 1.0);
-
-          const cardWidth = canvas.width / SCALE_FACTOR;
-          const cardHeight = canvas.height / SCALE_FACTOR;
-
-          const pdf = new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: [cardWidth, cardHeight],
-            compress: true,
-          });
-
-          pdf.addImage(imgData, "PNG", 0, 0, cardWidth, cardHeight, "", "FAST");
-          pdf.save("Eid_Card_MH.pdf");
-          setDownloadBusy(false);
-        } catch (err) {
-          console.error("PDF download failed:", err);
-          document.getElementById("downloadStatus").textContent =
-            "❌ Download failed. Try again.";
-          document.getElementById("btnDownloadJPG").disabled = false;
-          document.getElementById("btnDownloadPDF").disabled = false;
-          document
-            .getElementById("btnDownloadJPG")
-            .classList.remove("opacity-50", "cursor-not-allowed");
-          document
-            .getElementById("btnDownloadPDF")
-            .classList.remove("opacity-50", "cursor-not-allowed");
-        }
       }
 
       // function for downloading jpg format
@@ -485,12 +590,8 @@
           document.getElementById("downloadStatus").textContent =
             "❌ Download failed. Try again.";
           document.getElementById("btnDownloadJPG").disabled = false;
-          document.getElementById("btnDownloadPDF").disabled = false;
           document
             .getElementById("btnDownloadJPG")
-            .classList.remove("opacity-50", "cursor-not-allowed");
-          document
-            .getElementById("btnDownloadPDF")
             .classList.remove("opacity-50", "cursor-not-allowed");
         }
       }
@@ -524,7 +625,7 @@
                 status.textContent = "✅ Shared successfully!";
               } else {
                 await navigator.clipboard.writeText(
-                  "Wishing you a blessed Eid Mubarak! 🌙 Check out eidcard.pages.dev",
+                  "Wishing you a blessed Eid Mubarak! 🌙 Check out https://eidcard-indol.vercel.app/",
                 );
                 status.textContent = "📋 Share link copied to clipboard!";
               }
@@ -552,7 +653,7 @@
           ecard.style.backgroundSize = "cover";
           ecard.style.backgroundPosition = "center";
           document.getElementById("downloadStatus").textContent =
-            "✅ Custom background applied! Click Download or Share.";
+            i18n[currentLang].statusCustomBg;
         };
         reader.readAsDataURL(file);
         // Reset input so the same file can be re-selected if needed
