@@ -137,7 +137,9 @@
       background-position: center;
     "
   >
-    <div class="p-4 shadow-lg text-center w-full max-w-sm sm:max-w-md mx-auto my-6">
+    <div
+      class="p-4 shadow-lg text-center w-full max-w-sm sm:max-w-md mx-auto my-6"
+    >
       <h2
         class="text-2xl sm:text-3xl font-bold text-white pb-3 top-slide-animation"
         style="font-family: &quot;Winky Sans&quot;, sans-serif"
@@ -185,51 +187,56 @@
         id="nameInput"
         placeholder="Write your note .."
         class="p-2 rounded bg-gray-900/50 text-white w-full mt-4 focus:outline-none"
+        oninput="
+          document.getElementById('nameText').textContent = this.value
+            ? 'Peace be upon you, ' + this.value
+            : '[Write your note]'
+        "
       />
 
+      <!-- Hidden file input for custom background -->
+      <input
+        type="file"
+        id="bgImageInput"
+        accept="image/*"
+        class="hidden"
+        onchange="importBgImage(event)"
+      />
+
+      <!-- Custom Background full-width button -->
+      <button
+        id="btnImportImage"
+        onclick="document.getElementById('bgImageInput').click()"
+        class="bg-yellow-700 text-white w-full py-2 rounded mt-2 hover:bg-purple-600 active:bg-purple-500 transition-colors"
+      >
+        Custom Background
+      </button>
+
       <!-- Buttons row -->
-      <div class="flex flex-wrap justify-center gap-2 mt-3">
+      <div class="flex justify-center gap-2 mt-3">
         <!-- "Generate" Button -->
         <button
           id="btnGenerate"
           onclick="updateCard()"
-          class="bg-green-700 text-white px-4 py-2 rounded right-slide-animation hover:bg-green-600 active:bg-green-500 transition-colors"
+          class="flex-1 bg-green-800 text-white px-4 py-2 rounded right-slide-animation hover:bg-green-600 active:bg-green-500 transition-colors"
         >
           Generate
-        </button>
-
-        <!-- "Reset" Button -->
-        <button
-          id="btnReset"
-          onclick="resetCard()"
-          class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 active:bg-gray-400 transition-colors"
-        >
-          Reset
         </button>
 
         <!-- "Download JPG" Button -->
         <button
           id="btnDownloadJPG"
           onclick="downloadJPG()"
-          class="bg-amber-500 text-white px-4 py-2 rounded left-slide-animation hover:bg-amber-400 active:bg-amber-300 transition-colors"
+          class="flex-1 bg-amber-700 text-white px-4 py-2 rounded left-slide-animation hover:bg-amber-400 active:bg-amber-300 transition-colors"
         >
-          Download JPG
-        </button>
-
-        <!-- "Download PDF" Button -->
-        <button
-          id="btnDownloadPDF"
-          onclick="downloadPDF()"
-          class="bg-red-700 text-white px-4 py-2 rounded hover:bg-red-600 active:bg-red-500 transition-colors"
-        >
-          Download PDF
+          Download
         </button>
 
         <!-- "Share" Button (uses Web Share API with JPG fallback copy) -->
         <button
           id="btnShare"
           onclick="shareCard()"
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 active:bg-blue-400 transition-colors"
+          class="flex-1 bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-500 active:bg-blue-400 transition-colors"
         >
           Share
         </button>
@@ -531,6 +538,25 @@
             status.textContent = "❌ Share failed. Try downloading instead.";
           }
         }
+      }
+
+      // Import a custom background image from the user's device
+      function importBgImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const ecard = document.getElementById("ecard");
+          ecard.style.backgroundImage = `linear-gradient(0deg, rgba(0,35,36,0.8) 0%, rgba(72, 72, 62, 0.7) 100%), url('${e.target.result}')`;
+          ecard.style.backgroundBlendMode = "overlay";
+          ecard.style.backgroundSize = "cover";
+          ecard.style.backgroundPosition = "center";
+          document.getElementById("downloadStatus").textContent =
+            "✅ Custom background applied! Click Download or Share.";
+        };
+        reader.readAsDataURL(file);
+        // Reset input so the same file can be re-selected if needed
+        event.target.value = "";
       }
 
       // Load a random hadith and preload images when the page loads
