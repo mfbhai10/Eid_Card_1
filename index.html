@@ -26,7 +26,7 @@
 
     <!--  Google Fonts -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Winky+Sans&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Winky+Sans&family=Galada&display=swap"
       rel="stylesheet"
     />
 
@@ -373,6 +373,10 @@
         const t = i18n[currentLang];
         document.getElementById("pageHeading").textContent = t.pageHeading;
         document.getElementById("cardTitle").textContent = t.cardTitle;
+        document.getElementById("cardTitle").style.fontFamily =
+          currentLang === "bn"
+            ? "'Galada', cursive"
+            : "'Dancing Script', cursive";
         document.getElementById("btnLangToggle").textContent = t.btnLangToggle;
         document.getElementById("btnGenerate").textContent = t.btnGenerate;
         document.getElementById("btnImportImage").textContent =
